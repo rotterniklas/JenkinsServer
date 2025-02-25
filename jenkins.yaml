@@ -9,18 +9,18 @@ jenkins:
   authorizationStrategy:
     loggedInUsersCanDoAnything:
       allowAnonymousRead: false
-
+  
   # Example global tool configuration
   globalNodeProperties:
     - envVars:
         env:
           - key: EXAMPLE_VARIABLE
             value: example_value
-
+  
   # Jenkins URL configuration
   locationConfiguration:
     url: http://localhost:8080/
-
+  
   # Number of executors on master
   numExecutors: 2
 

@@ -9,4 +9,5 @@ credentials-binding:latest
 docker-workflow:latest
 blueocean:latest
 job-dsl:latest
-role-strategy:latest
+matrix-auth:latest
+plain-credentials:latest
