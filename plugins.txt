@@ -1,0 +1,12 @@
+configuration-as-code:latest
+configuration-as-code-support:latest
+workflow-aggregator:latest
+pipeline-model-definition:latest
+git:latest
+github:latest
+credentials:latest
+credentials-binding:latest
+docker-workflow:latest
+blueocean:latest
+job-dsl:latest
+role-strategy:latest
