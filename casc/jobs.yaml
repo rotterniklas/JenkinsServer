@@ -1,0 +1,21 @@
+jobs:
+  - script: >
+          pipelineJob('go-project') {
+              definition {
+                  cpsScm {
+                      scm {
+                          git {
+                              remote {
+                                  url('git@github.com:rotterniklas/JenkinsCalc.git')
+                                  credentials('git-ssh-key')
+                              }
+                              branch('master')
+                          }
+                      }
+                      scriptPath('Jenkinsfile')
+                  }
+              }
+              triggers {
+                      scm('* * * * *')
+                }
+          }

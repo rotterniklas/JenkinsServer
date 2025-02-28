@@ -1,0 +1,38 @@
+jenkins:
+  systemMessage: "Jenkins configured by Configuration as Code"
+  numExecutors: 2
+  mode: NORMAL
+  scmCheckoutRetryCount: 3
+  labelString: "master-label"
+
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "admin"
+          name: "Administrator"
+          description: "Jenkins Administrator"
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - basicSSHUserPrivateKey:
+              scope: GLOBAL
+              id: "git-ssh-key"
+              username: "git"
+              description: "GitHub SSH Key"
+              privateKeySource:
+                directEntry:
+                    privateKey: <<your private key>>
+
+security:
+  gitHostKeyVerificationConfiguration:
+    sshHostKeyVerificationStrategy: "noHostKeyVerificationStrategy"
+
+tool:
+  git:
+    installations:
+      - name: Default
+        home: "git"

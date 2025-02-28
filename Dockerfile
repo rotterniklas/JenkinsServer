@@ -1,45 +1,46 @@
-# Dockerfile
-FROM jenkins/jenkins:lts-jdk17
+FROM jenkins/jenkins:lts
 
-# Switch to root user to install packages
+COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
+
+ENV JENKINS_HOME /var/jenkins_home
+
+# Skip setup wizard
+ARG JAVA_OPTS
+ENV JAVA_OPTS "-Djenkins.install.runSetupWizard=false ${JAVA_OPTS:-}"
+
+# Install plugins
+RUN xargs /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt
+
 USER root
 
-# Install necessary tools
+# Install Docker CLI and Go
 RUN apt-get update && \
-    apt-get install -y apt-transport-https \
-    ca-certificates \
-    curl \
-    gnupg2 \
-    software-properties-common \
-    git \
-    lsb-release && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Install Docker CLI (to allow Jenkins to use Docker)
-RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
-    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" && \
+    apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common wget git && \
+    # Install Docker CLI
+    curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
+    add-apt-repository \
+    "deb [arch=amd64] https://download.docker.com/linux/debian \
+    $(lsb_release -cs) \
+    stable" && \
     apt-get update && \
     apt-get install -y docker-ce-cli && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    # Install Go
+    wget https://golang.org/dl/go1.21.6.linux-amd64.tar.gz && \
+    tar -C /usr/local -xzf go1.21.6.linux-amd64.tar.gz && \
+    rm go1.21.6.linux-amd64.tar.gz
+
+# Set Go environment variables
+ENV PATH="/usr/local/go/bin:${PATH}"
+ENV GOPATH="/var/jenkins_home/go"
+ENV PATH="${GOPATH}/bin:${PATH}"
+
+# Add jenkins user to docker group
+RUN groupadd -f docker && \
+    usermod -aG docker jenkins
+
+# Ensure proper directory permissions
+RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin ${GOPATH}/pkg && \
+    chown -R jenkins:jenkins ${GOPATH}
 
 # Switch back to jenkins user
 USER jenkins
-
-# Tell Jenkins to use Configuration as Code
-ENV CASC_JENKINS_CONFIG=/var/jenkins_home/casc_configs/jenkins.yaml
-
-# Skip initial setup
-ENV JAVA_OPTS="-Djenkins.install.runSetupWizard=false"
-
-# Install Jenkins plugins
-COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
-RUN jenkins-plugin-cli --plugin-file /usr/share/jenkins/ref/plugins.txt
-
-# Copy JCasC configuration
-COPY jenkins.yaml /var/jenkins_home/casc_configs/jenkins.yaml
-
-# Expose ports
-EXPOSE 8080
-EXPOSE 50000
