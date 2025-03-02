@@ -9,7 +9,7 @@ jobs:
                                   url('git@github.com:rotterniklas/JenkinsCalc.git')
                                   credentials('git-ssh-key')
                               }
-                              branch('master')
+                              branch('main')
                           }
                       }
                       scriptPath('Jenkinsfile')
